@@ -1,0 +1,10 @@
+[
+    { "id": 1004, "pengguna": "Rizky", "tanggal": "02/01/2025", "deskripsi": "Tidak bisa login", "status": "Selesai" },
+    { "id": 1007, "pengguna": "Ama", "tanggal": "02/01/2025", "deskripsi": "Tidak bisa login", "status": "Selesai" },
+    { "id": 1002, "pengguna": "Tasya", "tanggal": "02/01/2025", "deskripsi": "Error artikel", "status": "Diproses" },
+    { "id": 1005, "pengguna": "Lia", "tanggal": "02/12/2024", "deskripsi": "Error Artikel", "status": "Selesai" },
+    { "id": 1003, "pengguna": "Vivi", "tanggal": "02/12/2024", "deskripsi": "Fitur error", "status": "Selesai" },
+    { "id": 1010, "pengguna": "Ica", "tanggal": "02/12/2024", "deskripsi": "Fitur error", "status": "Selesai" },
+    { "id": 1010, "pengguna": "Tes", "tanggal": "04/12/2024", "deskripsi": "Otak kena", "status": "Diproses" },
+    { "id": 1004, "pengguna": "Rizky", "tanggal": "02/01/2025", "deskripsi": "Tidak bisa login", "status": "Selesai" }
+]

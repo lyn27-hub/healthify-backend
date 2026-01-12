@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 {{ title }}</h1>
+
+        {% if students %}
+            {% for student in students %}
+                <div class="student-card status-{{ student.status | lower | replace(' ', '-') }}">
+                    
+                    <div class="card-header">
+                        <h2><a href="{{ url_for('student_detail', student_id=student.id) }}">#{{ student.id }} - {{ student.name }}</a></h2>
+                        <span class="status-badge">{{ student.status }}</span>
+                    </div>
+
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                    <p><strong>Major:</strong> {{ student.major }}</p>
+                    <p><strong>GPA:</strong> {{ student.gpa }}</p>
+                    <p><strong>Enrollment:</strong> {{ student.enrollment_date }}</p>
+                    
+                    <div class="courses">
+                        <strong>Courses:</strong>
+                        <ul>
+                            {% for course in student.courses %}
+                                <li>{{ course }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% if loop.length > 1 and not loop.last %}
+                    <hr> 
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="no-data">No student data available.</p>
+        {% endif %}
+
+        {% if students | length == 1 and students[0].id %}
+             <p class="back-link"><a href="{{ url_for('index') }}">&larr; Back to Full Directory</a></p>
+        {% endif %}
+    </div>
+</body>
+</html>

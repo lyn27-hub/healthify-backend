@@ -1,0 +1,8 @@
+Flask
+flask-cors
+flask-sqlalchemy
+pymysql
+pandas
+cryptography
+werkzeug
+Flask-JWT-Extended

@@ -1,0 +1,50 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASS=rootpassword
+      - DB_NAME=healthify
+    depends_on:
+      - db:
+    volumes:
+      - .:/app
+      - ./static/uploads:/app/static/uploads
+      - ./data_files:/app/data_files
+      - ./healthify.sql:/docker-entrypoint-initdb.d/healthify.sql
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: healthify
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_healthify_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 5s
+      start_period: 10s
+
+
+
+  # --- TAMBAHKAN INI ---
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_ARBITRARY=1
+    depends_on:
+      - db
+volumes:
+  mysql_healthify_data:
