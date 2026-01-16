@@ -1,0 +1,18 @@
+# Lingkungan Python
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+
+# Docker & database lokal
+Dockerfile
+docker-compose.yml
+*.sql
+data_files/
+migrations/
+
+# Dev & lainnya
+.git/
+README.md
+tests/

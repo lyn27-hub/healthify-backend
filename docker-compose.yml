@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   web:
     build: .
@@ -9,12 +11,12 @@ services:
       - DB_PASS=rootpassword
       - DB_NAME=healthify
     depends_on:
-      - db:
+      - db
     volumes:
       - .:/app
       - ./static/uploads:/app/static/uploads
       - ./data_files:/app/data_files
-      - ./healthify.sql:/docker-entrypoint-initdb.d/healthify.sql
+    restart: unless-stopped
 
   db:
     image: mysql:8.0
@@ -25,7 +27,8 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_healthify_data:/var/lib/mysql
+      - mysql_healthify_:/var/lib/mysql
+      - ./healthify.sql:/docker-entrypoint-initdb.d/healthify.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -33,18 +36,16 @@ services:
       interval: 5s
       start_period: 10s
 
-
-
-  # --- TAMBAHKAN INI ---
   phpmyadmin:
     image: phpmyadmin:latest
     restart: always
     ports:
       - "8080:80"
     environment:
-      - PMA_HOST=db
-      - PMA_ARBITRARY=1
+      PMA_HOST: db
+      PMA_ARBITRARY: 1
     depends_on:
       - db
+
 volumes:
-  mysql_healthify_data:
+  mysql_healthify_: 
