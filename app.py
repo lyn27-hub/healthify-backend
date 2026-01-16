@@ -12,18 +12,13 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 # Di bawah konfigurasi app lainnya
 app = Flask(__name__)
 
-DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASS = os.getenv('DB_PASS', 'rootpassword')  # sesuaikan default jika perlu
-DB_NAME = os.getenv('DB_NAME', 'healthify')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ==========================================
-# 1. KONFIGURASI DATABASE
-# ==========================================
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:3306/{DB_NAME}"
+app.config["SQLALCHEMY_DATABASE_URI"] = \
+    "sqlite:///" + os.path.join(BASE_DIR, "app.db")
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299  
-app.config["SQLALCHEMY_POOL_PRE_PING"] = True 
+
 
 # --- [SECURITY FIX 2] Tambahkan Secret Key ---
 # Kunci ini dipakai untuk membuat Token unik. Jangan sampai bocor.
@@ -35,19 +30,7 @@ jwt = JWTManager(app)  # <--- INI YANG HILANG DAN MENYEBABKAN ERROR
 # 2. INIT APP & SECURITY
 # ==========================================
 
-# --- [SECURITY FIX 3] Perketat CORS (Pagar Pembatas) ---
-# Mengganti "*" dengan daftar IP yang diizinkan saja.
-# Masukkan IP Laptopmu (192.168.175.2) dan Localhost.
-allowed_origins = [
-    "http://127.0.0.1:5000",
-    "http://localhost:5000",
-    "http://192.168.175.2:5000",
-    "http://192.168.175.2" # Untuk jaga-jaga jika port tidak terbaca
-]
-
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-# --- [SECURITY FIX 4] Aktifkan Perlindungan CSRF ---
-# Ini yang akan menolak file "hadiah_palsu.html"
 
 db.init_app(app) 
 
@@ -390,7 +373,7 @@ def get_user_detail(id):
             data['bmi_score'] = 0
 
         if user.foto:
-             data['foto'] = f"http://192.168.175.2:5000/static/uploads/{user.foto}"
+             data['foto'] = f"/static/uploads/{user.foto}"
              
         return jsonify(data), 200
     except Exception as e:
@@ -457,7 +440,7 @@ def update_user(id):
         
         user_dict = user.to_dict()
         if user.foto:
-            user_dict['foto'] = f"http://192.168.175.2:5000/static/uploads/{user.foto}"
+            user_dict['foto'] = f"/static/uploads/{user.foto}"
 
         return jsonify({"message": "Data Berhasil Diupdate!", "user": user_dict}), 200
 
@@ -716,9 +699,3 @@ def login_admin_vulnerable():
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# ==========================================
-# MAIN EXECUTION
-# ==========================================
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=5000)

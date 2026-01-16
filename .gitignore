@@ -1,1 +1,11 @@
-.vercel
+__pycache__/
+*.pyc
+.env
+venv/
+.env.local
+
+# SQLite
+*.db
+
+# Uploads (opsional)
+static/uploads/
