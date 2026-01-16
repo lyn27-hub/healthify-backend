@@ -10,6 +10,10 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     
+    @app.route("/")
+    def hello():
+        return {"status": "success", "message": "HydraTrack LIVE on Vercel!"}
+    
     # Register blueprint
     from app.routes.user_routes import user_bp
     app.register_blueprint(user_bp, url_prefix='/api/users')
