@@ -14,8 +14,9 @@ app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app.config["SQLALCHEMY_DATABASE_URI"] = \
-    "sqlite:///" + os.path.join(BASE_DIR, "app.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL',
+    'sqlite:///healthify.db')
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
