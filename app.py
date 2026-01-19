@@ -4,28 +4,31 @@ from extensions import db
 from models import Laporan, Admin, Konten, Pengguna, RiwayatAktivitas, RiwayatMakan, Makanan, RiwayatLari
 import pandas as pd
 import os
+from dotenv import load_dotenv
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text 
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
+load_dotenv()
 # Di bawah konfigurasi app lainnya
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    'DATABASE_URL',
-    'sqlite:///healthify.db')
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL belum diset di environment")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 # --- [SECURITY FIX 2] Tambahkan Secret Key ---
 # Kunci ini dipakai untuk membuat Token unik. Jangan sampai bocor.
 app.config['SECRET_KEY'] = 'kunci-rahasia-healthify-jangan-disebar-999'
 
-app.config["JWT_SECRET_KEY"] = "super-secret-jwt-key-ubah-nanti"  # Kunci khusus JWT
+app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")  # Kunci khusus JWT
 jwt = JWTManager(app)  # <--- INI YANG HILANG DAN MENYEBABKAN ERROR
 # ==========================================
 # 2. INIT APP & SECURITY
@@ -35,15 +38,12 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 db.init_app(app) 
 
-# Buat tabel otomatis jika belum ada
 with app.app_context():
     db.create_all()
-    print("[INFO] Database & Tabel Siap!")
 
-# ==========================================
+
+
 # 3. API ADMIN
-# ==========================================
-# --- Pastikan Import ini ada di paling atas ---
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 # ==========================================
@@ -54,22 +54,20 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 def login_admin():
     data = request.get_json()
     email_admin = data.get('email')
-    password_admin = data.get('password') 
-    
+    password_admin = data.get('password')
+
     admin = Admin.query.filter_by(email=email_admin).first()
 
-    if admin and str(admin.password_hash) == str(password_admin):
-        # [JWT] Buat Token "Tiket Masuk"
+    if admin and check_password_hash(admin.password_hash, password_admin):
         access_token = create_access_token(identity=admin.email)
-        
         return jsonify({
-            "status": "success", 
-            "message": "Login Admin Berhasil!", 
-            "access_token": access_token,  # <--- INI PENTING
+            "status": "success",
+            "access_token": access_token,
             "user": admin.to_dict()
         }), 200
-    
-    return jsonify({"message": "Email atau Password Admin Salah"}), 401
+
+    return jsonify({"message": "Email atau Password salah"}), 401
+
 
 @app.route('/api/admin/profile', methods=['GET'])
 @jwt_required() # [JWT] Pasang Satpam (Cek Token)
@@ -700,3 +698,8 @@ def login_admin_vulnerable():
             
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
